@@ -20,7 +20,7 @@ export const ourFileRouter = {
     console.log("Upload complete for userId:", metadata.userId);
     console.log("File URL:", file.ufsUrl);
 
-    return { userId: metadata.userId }; // Ensure the return type conforms to JsonObject
+    return { userId: metadata.userId, fileUrl: file.ufsUrl, fileName: file.name }; // Ensure the return type conforms to JsonObject
   }),
 } satisfies FileRouter;
 

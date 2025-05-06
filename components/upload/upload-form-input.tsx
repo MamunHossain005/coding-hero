@@ -49,10 +49,10 @@ export default function UploadFormInput() {
         description: error.message,
       });
     },
-    onUploadBegin: (file: string) => {
+    onUploadBegin: (data) => {
       //handle the upload start
       toast.info("Upload started!", {
-        description: `Your file ${file} is being uploaded.`,
+        description: `Your file ${data} is being uploaded.`,
       });
     },
   });
@@ -84,8 +84,8 @@ export default function UploadFormInput() {
       });
 
       //upload the file to uploadthing
-      const resp = await startUpload([file]);
-      if (!resp) {
+      const uploadResponse = await startUpload([file]);
+      if (!uploadResponse) {
         toast.dismiss(uploadToastId);
         toast.error("❌ Something went wrong", {
           description: "Please use a different file.",
@@ -109,7 +109,7 @@ export default function UploadFormInput() {
           {
             serverData: {
               file: {
-                url: resp[0].ufsUrl,
+                url: uploadResponse[0].serverData.fileUrl,
               },
             },
           },
@@ -147,7 +147,7 @@ export default function UploadFormInput() {
           });
           //save the summary to the database
           storedResult = await storedPdfSummaryAction({
-            fileUrl: resp[0].ufsUrl,
+            fileUrl: uploadResponse[0].serverData.fileUrl,
             summary: data.summary,
             title: data.title,
             fileName: formattedFileName,
