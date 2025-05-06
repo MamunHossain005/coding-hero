@@ -6,5 +6,7 @@ export async function getDBConnection() {
         throw new Error('Neon Database URL is not defined');
     }
     const sql = neon(process.env.DATABASE_URL);
+    if (!sql) throw new Error("Failed to connect to DB");
+    
     return sql;
 }

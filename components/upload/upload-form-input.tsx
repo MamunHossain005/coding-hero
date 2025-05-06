@@ -1,6 +1,10 @@
 "use client";
 
-import { generatePdfSummary, storedPdfSummaryAction } from "@/actions/upload-actions";
+import {
+  generatedPdfText,
+  generatePdfSummary,
+  storedPdfSummaryAction,
+} from "@/actions/upload-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -10,6 +14,10 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
+import LoadingSkeleton from "./loading-skeleton";
+import { url } from "inspector";
+import { formatFileNameAsTitle } from "@/utils/format-utils";
+import { format } from "path";
 
 //schema with zod
 const schema = z.object({
@@ -70,7 +78,7 @@ export default function UploadFormInput() {
         return;
       }
 
-       // Show upload loading toast and store its ID
+      // Show upload loading toast and store its ID
       const uploadToastId = toast.loading("📄 Uploading PDF", {
         description: "We are uploading your PDF!",
       });
@@ -92,43 +100,83 @@ export default function UploadFormInput() {
       });
 
       //parse the pdf using lang-chain
-      const result = await generatePdfSummary(resp);
 
-      const { data = null, message = null } = result || {};
-
-      if (data) {
         let storedResult: any;
 
-        toast.dismiss(processingToastId);
-        const savingToastId = toast.loading("Saving PDF...", {
-          description: "Hang tight! Your summary is being saved.",
+        const formattedFileName = formatFileNameAsTitle(file.name);
+        //call ai service
+        const result = await generatedPdfText([
+          {
+            serverData: {
+              file: {
+                url: resp[0].ufsUrl,
+              },
+            },
+          },
+        ]);
+
+        //call a service
+        if (!result.data) {
+          toast.dismiss(processingToastId);;
+          toast.error("❌ Something went wrong", {
+            description: "Please use a different file.",
+          });
+          setIsLoading(false);
+          return;
+        }
+
+        const summaryGeneratedToast = toast.loading("Generating summary...", {
+          description: "Hang tight! Your summary is being generated.",
         });
-        
-        if(data.summary) {
+
+        const summaryResult = await generatePdfSummary([
+          {
+            serverData: {
+              pdfText: result?.data?.pdfText ?? '',
+              fileName: formattedFileName,
+            },
+          },
+        ]);
+
+        const { data = null, message = null } = summaryResult || {};
+
+        if (data?.summary) {
+          toast.dismiss(summaryGeneratedToast);
+          const savingToastId = toast.loading("Saving summary...", {
+            description: "Hang tight! Your summary is being saved.",  
+          });
           //save the summary to the database
           storedResult = await storedPdfSummaryAction({
             fileUrl: resp[0].ufsUrl,
             summary: data.summary,
             title: data.title,
-            fileName: file.name,
-          })
+            fileName: formattedFileName,
+          });
+
+          if(!storedResult) {
+            toast.dismiss(savingToastId);
+            toast.error("❌ Something went wrong", {
+              description: "Please use a different file.",
+            });
+            setIsLoading(false);
+            return;
+          }
 
           toast.dismiss(savingToastId);
-          toast.success('✨ Summary Generated!', {
-            description: 'Your PDF has been successfully summarized and saved! ✨'
-          })
+          toast.success("✨ Summary Generated!", {
+            description:
+              "Your PDF has been successfully summarized and saved! ✨",
+          });
 
           formRef.current?.reset(); // Reset the form after successful upload
           //redirect to [id] summary page
-          router.push(`/summaries/${storedResult.data.id}`)
+          router.push(`/summaries/${storedResult.data.id}`);
         } else {
           toast.dismiss(processingToastId);
-        }
-      }
-      
+        }      
     } catch (error) {
       toast.dismiss();
-      if(error) {
+      if (error) {
         toast.error("An error occurred");
       }
       setIsLoading(false);
@@ -148,13 +196,20 @@ export default function UploadFormInput() {
           name="file"
           accept="application/pdf"
           required
-          className={cn(isLoading && 'opacity-50 cursor-not-allowed')}
+          className={cn(isLoading && "opacity-50 cursor-not-allowed")}
           disabled={isLoading}
         />
-        <Button disabled={isLoading}>{isLoading ? <>
-          <Loader2 className="mr-2 h-4 w-4 animate-spin"/> Processing...
-        </> : 'Upload your PDF'}</Button>
+        <Button disabled={isLoading}>
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing...
+            </>
+          ) : (
+            "Upload your PDF"
+          )}
+        </Button>
       </div>
+      <LoadingSkeleton />
     </form>
   );
 }

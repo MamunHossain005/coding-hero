@@ -16,14 +16,12 @@ interface IPdfSummary {
   fileName: string;
 }
 
-export async function generatePdfSummary(
+export async function generatedPdfText(
   uploadResponse: [
     {
       serverData: {
-        userId: string;
         file: {
           url: string;
-          name: string;
         };
       };
     }
@@ -39,8 +37,7 @@ export async function generatePdfSummary(
 
   const {
     serverData: {
-      userId,
-      file: { url: pdfUrl, name: fileName },
+      file: { url: pdfUrl },
     },
   } = uploadResponse[0];
 
@@ -56,6 +53,53 @@ export async function generatePdfSummary(
     const pdfText = await fetchAndExtractPdfText(pdfUrl);
     console.log({ pdfText });
 
+    if (!pdfText) {
+      return {
+        success: false,
+        message: "Failed to fetch and extract PDF text",
+        data: null,
+      };
+    }
+    
+    return {
+      success: true,
+      message: "PDF text generated successfully",
+      data: {
+        pdfText,
+      },
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: "Failed to fetch and extract PDF text",
+      data: null,
+    };
+  }
+}
+
+export async function generatePdfSummary(
+  uploadResponse: [
+    {
+      serverData: {
+        pdfText: string;
+        fileName: string;
+      };
+    }
+  ]
+) {
+  if (!uploadResponse) {
+    return {
+      success: false,
+      message: "File upload failed",
+      data: null,
+    };
+  }
+
+  const {
+    serverData: { pdfText, fileName },
+  } = uploadResponse[0];
+
+  try {
     let summary = null;
 
     try {
@@ -88,20 +132,18 @@ export async function generatePdfSummary(
       };
     }
 
-    const formattedFileName = formatFileNameAsTitle(fileName);
-
     return {
       success: true,
       message: "Summary generated successfully",
       data: {
-        title: formattedFileName,
+        title: fileName,
         summary,
       },
     };
   } catch (error) {
     return {
       success: false,
-      message: "File upload failed",
+      message: "Failed to generate summary",
       data: null,
     };
   }
