@@ -13,6 +13,8 @@ const fontSans = FontSans({
   weight: ["200", "300", "400", "500", "600", "700", "800", "900"],
 });
 
+const effectiveBaseUrl = ORIGINAL_URL || 'http://localhost:3000';
+
 export const metadata: Metadata = {
   title: "CodingHero - Learn to Code with Ease",
   description: "Save hours of reading time. Transform lengthy PDFs into clear, accurate summaries in seconds with our advanced AI technology",
@@ -23,9 +25,9 @@ export const metadata: Metadata = {
       },
     ],
   },
-  metadataBase: new URL(ORIGINAL_URL),
+  metadataBase: new URL(effectiveBaseUrl),
   alternates: {
-    canonical: ORIGINAL_URL,
+    canonical: effectiveBaseUrl,
   }
 };
 
