@@ -17,13 +17,13 @@ const eslintConfig = {
       'plugin:@typescript-eslint/recommended',
       'plugin:tailwindcss/recommended'
     ],
-    plugins: ['prettier', 'tailwindcss'],
+    plugins: ['prettier', '@typescript-eslint'],
     rules: {
       'prettier/prettier': 'error',
       'no-console': 'warn',
-      'no-unused-vars': 'error',
+      'no-unused-vars': 'off', // Disable base rule
+      '@typescript-eslint/no-unused-vars': 'error', // Use TypeScript version
       'react/no-escape-entities': 'off',
-      '@typescript-eslint/no-unused-vars': 'error',
     },
   }),
 };
