@@ -1,6 +1,6 @@
 'use client' // Error components must be Client components
 
-export default function Error({
+export default function ErrorBoudary({
   error,
   reset,
 }: {
