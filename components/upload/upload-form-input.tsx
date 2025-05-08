@@ -210,7 +210,9 @@ export default function UploadFormInput() {
           )}
         </Button>
       </div>
-      <LoadingSkeleton />
+       {
+         isLoading && <LoadingSkeleton />
+       }
     </form>
   );
 }

@@ -11,22 +11,22 @@ function HeaderSkeleton() {
   return (
     <div className="flex gap-4 mb-8 justify-between items-center">
       <div className="flex flex-col gap-2">
-        <MotionH1
+        <MotionDiv
           variants={itemVariants}
           initial="hidden"
           whileInView="visible"
           className="text-4xl font-bold tracking-tight bg-linear-to-r from-gray-600 to-gray-900 bg-clip-text text-transparent"
         >
           <Skeleton className="h-10 w-48" />
-        </MotionH1>
-        <MotionP
+        </MotionDiv>
+        <MotionDiv
           variants={itemVariants}
           initial="hidden"
           animate="visible"
           className="text-gray-600"
         >
             <Skeleton className="h-6 w-96" />
-        </MotionP>
+        </MotionDiv>
       </div>
       <MotionDiv
         variants={itemVariants}
