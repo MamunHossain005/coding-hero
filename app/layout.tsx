@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   title: "CodingHero - Learn to Code with Ease",
   description: "Save hours of reading time. Transform lengthy PDFs into clear, accurate summaries in seconds with our advanced AI technology",
   icons: {
-    icon: '/codingHero.ico'
+    icon: '/favicon.ico'
   },
   openGraph: {
     images: [
