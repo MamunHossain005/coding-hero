@@ -117,7 +117,7 @@ export default function UploadFormInput() {
 
         //call a service
         if (!result.data) {
-          toast.dismiss(processingToastId);;
+          toast.dismiss(processingToastId);
           toast.error("❌ Something went wrong", {
             description: "Please use a different file.",
           });
@@ -125,6 +125,7 @@ export default function UploadFormInput() {
           return;
         }
 
+        toast.dismiss(processingToastId);
         const summaryGeneratedToast = toast.loading("Generating summary...", {
           description: "Hang tight! Your summary is being generated.",
         });
